@@ -6,6 +6,10 @@ import { NaturalLanguageInterface } from './components/NaturalLanguageInterface'
 import { CommandInterface } from './components/CommandInterface';
 import { ResourceManager } from './components/ResourceManager';
 import { CloudProviderTabs } from './components/CloudProviderTabs';
+import { Monitoring } from './components/Monitoring';
+import { Security } from './components/Security';
+import { Billing } from './components/Billing';
+import { Settings } from './components/Settings';
 
 function App() {
   const [activeView, setActiveView] = useState('dashboard');
@@ -32,6 +36,18 @@ function App() {
           )}
           {activeView === 'resources' && (
             <ResourceManager activeProvider={activeProvider} />
+          )}
+          {activeView === 'monitoring' && (
+            <Monitoring activeProvider={activeProvider} />
+          )}
+          {activeView === 'security' && (
+            <Security activeProvider={activeProvider} />
+          )}
+          {activeView === 'billing' && (
+            <Billing activeProvider={activeProvider} />
+          )}
+          {activeView === 'settings' && (
+            <Settings activeProvider={activeProvider} />
           )}
         </main>
       </div>
