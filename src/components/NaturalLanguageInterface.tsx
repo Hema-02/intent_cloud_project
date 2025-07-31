@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Send, Mic, MicOff } from 'lucide-react';
-import { cloudProviderService } from '../services/cloudProviders';
 
 interface NaturalLanguageInterfaceProps {
   activeProvider: string;
@@ -9,7 +8,6 @@ interface NaturalLanguageInterfaceProps {
 export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInterfaceProps) {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [conversation, setConversation] = useState([
     {
       type: 'system',
@@ -18,50 +16,40 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
     },
   ]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setIsProcessing(true);
     const userMessage = {
       type: 'user',
       message: input,
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    setConversation(prev => [...prev, userMessage]);
+    // Simulate AI response
+    const aiResponse = {
+      type: 'ai',
+      message: generateAIResponse(input, activeProvider),
+      timestamp: new Date().toLocaleTimeString(),
+    };
+
+    setConversation([...conversation, userMessage, aiResponse]);
     setInput('');
-
-    try {
-      const response = await cloudProviderService.executeNaturalLanguageCommand(input, activeProvider);
-      
-      const aiResponse = {
-        type: 'ai',
-        message: response,
-        timestamp: new Date().toLocaleTimeString(),
-      };
-
-      setConversation(prev => [...prev, aiResponse]);
-    } catch (error) {
-      const errorResponse = {
-        type: 'ai',
-        message: 'I apologize, but I encountered an error processing your request. Please try again.',
-        timestamp: new Date().toLocaleTimeString(),
-      };
-      setConversation(prev => [...prev, errorResponse]);
-    } finally {
-      setIsProcessing(false);
-    }
   };
 
-  // Add processing indicator to conversation
-  const displayConversation = isProcessing 
-    ? [...conversation, {
-        type: 'ai',
-        message: 'Processing your request...',
-        timestamp: new Date().toLocaleTimeString(),
-      }]
-    : conversation;
+  const generateAIResponse = (userInput: string, provider: string) => {
+    const responses = {
+      'create': `I'll help you create a new resource on ${provider.toUpperCase()}. Let me configure the optimal settings for your request.`,
+      'list': `Here are your current resources on ${provider.toUpperCase()}:`,
+      'delete': `I'll help you safely delete the specified resource. Please confirm this action.`,
+      'scale': `I'll scale your resources according to your requirements on ${provider.toUpperCase()}.`,
+      'monitor': `Here's the current monitoring data for your ${provider.toUpperCase()} resources.`,
+    };
+
+    const key = Object.keys(responses).find(k => userInput.toLowerCase().includes(k));
+    return key ? responses[key as keyof typeof responses] : 
+      `I understand you want to: "${userInput}". Let me process this request for your ${provider.toUpperCase()} environment.`;
+  };
 
   return (
     <div className="h-full flex flex-col">
@@ -74,7 +62,7 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
 
       <div className="flex-1 bg-gray-800 rounded-lg border border-gray-700 flex flex-col">
         <div className="flex-1 p-6 overflow-auto space-y-4">
-          {displayConversation.map((message, index) => (
+          {conversation.map((message, index) => (
             <div
               key={index}
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -105,7 +93,6 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                disabled={isProcessing}
                 placeholder="Describe what you want to do with your cloud resources..."
                 className="w-full bg-gray-700 text-white px-4 py-3 pr-12 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -121,15 +108,10 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
             </div>
             <button
               type="submit"
-              disabled={isProcessing}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2"
             >
-              {isProcessing ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-              <span>{isProcessing ? 'Processing...' : 'Send'}</span>
+              <Send className="w-4 h-4" />
+              <span>Send</span>
             </button>
           </form>
         </div>
