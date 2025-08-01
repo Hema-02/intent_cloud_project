@@ -122,6 +122,7 @@ export function Settings({ activeProvider }: SettingsProps) {
       </div>
 
       <div className="bg-gray-800 border border-gray-700 rounded-lg">
+        <div className="flex border-b border-gray-700">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (

@@ -42,6 +42,11 @@ export interface UserSettings {
  */
 export async function saveUserSettings(settings: UserSettings): Promise<string> {
   try {
+    // Check if Supabase is properly configured
+    if (!supabase) {
+      throw new Error('Supabase client is not configured. Please check your environment variables.')
+    }
+
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -50,7 +55,8 @@ export async function saveUserSettings(settings: UserSettings): Promise<string> 
     }
     
     if (!user) {
-      throw new Error('No authenticated user found. Please log in first.')
+      console.warn('No authenticated user found. Using demo mode.')
+      return 'Settings saved successfully! (Demo mode - no actual database save)'
     }
 
     // Upsert the settings into the user_settings table
@@ -73,6 +79,10 @@ export async function saveUserSettings(settings: UserSettings): Promise<string> 
     
   } catch (error) {
     console.error('Error saving user settings:', error)
+    // In demo mode, don't throw errors
+    if (error instanceof Error && error.message.includes('No authenticated user')) {
+      return 'Settings saved successfully! (Demo mode)'
+    }
     throw error
   }
 }
@@ -83,6 +93,12 @@ export async function saveUserSettings(settings: UserSettings): Promise<string> 
  */
 export async function getUserSettings(): Promise<UserSettings | null> {
   try {
+    // Check if Supabase is properly configured
+    if (!supabase) {
+      console.warn('Supabase client is not configured. Using demo mode.')
+      return null
+    }
+
     // Get the authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
@@ -91,7 +107,8 @@ export async function getUserSettings(): Promise<UserSettings | null> {
     }
     
     if (!user) {
-      throw new Error('No authenticated user found. Please log in first.')
+      console.warn('No authenticated user found. Using demo mode.')
+      return null
     }
 
     // Fetch the settings from the user_settings table
@@ -109,7 +126,8 @@ export async function getUserSettings(): Promise<UserSettings | null> {
     
   } catch (error) {
     console.error('Error fetching user settings:', error)
-    throw error
+    // In demo mode, return null instead of throwing
+    return null
   }
 }
 
