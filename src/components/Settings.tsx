@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Settings as SettingsIcon, User, Bell, Shield, Palette, Globe, Save } from 'lucide-react';
+import { saveUserSettings, getUserSettings, UserSettings } from '../lib/userSettings';
 
 interface SettingsProps {
   activeProvider: string;
@@ -42,6 +43,9 @@ export function Settings({ activeProvider }: SettingsProps) {
     }
   });
 
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+
   const handleSettingChange = (category: string, key: string, value: any) => {
     setSettings(prev => ({
       ...prev,
@@ -51,6 +55,38 @@ export function Settings({ activeProvider }: SettingsProps) {
       }
     }));
   };
+
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    setSaveMessage('');
+    
+    try {
+      const message = await saveUserSettings(settings as UserSettings);
+      setSaveMessage(message);
+      setTimeout(() => setSaveMessage(''), 3000);
+    } catch (error) {
+      setSaveMessage(`Error: ${error instanceof Error ? error.message : 'Failed to save settings'}`);
+      setTimeout(() => setSaveMessage(''), 5000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Load settings on component mount
+  React.useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const userSettings = await getUserSettings();
+        if (userSettings) {
+          setSettings(prev => ({ ...prev, ...userSettings }));
+        }
+      } catch (error) {
+        console.error('Failed to load user settings:', error);
+      }
+    };
+    
+    loadSettings();
+  }, []);
 
   const tabs = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -64,14 +100,28 @@ export function Settings({ activeProvider }: SettingsProps) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-white">Settings</h2>
-        <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-          <Save className="w-4 h-4" />
-          <span>Save Changes</span>
-        </button>
+        <div className="flex items-center space-x-4">
+          {saveMessage && (
+            <div className={`text-sm px-3 py-1 rounded ${
+              saveMessage.startsWith('Error') 
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30' 
+                : 'bg-green-500/20 text-green-400 border border-green-500/30'
+            }`}>
+              {saveMessage}
+            </div>
+          )}
+          <button 
+            onClick={handleSaveSettings}
+            disabled={isSaving}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <Save className="w-4 h-4" />
+            <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-gray-800 border border-gray-700 rounded-lg">
-        <div className="flex border-b border-gray-700">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
