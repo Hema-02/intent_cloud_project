@@ -13,19 +13,34 @@ import {
 interface SidebarProps {
   activeView: string;
   setActiveView: (view: string) => void;
+  userRole: string;
 }
 
-export function Sidebar({ activeView, setActiveView }: SidebarProps) {
+export function Sidebar({ activeView, setActiveView, userRole }: SidebarProps) {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'nlp', label: 'Natural Language', icon: MessageSquare },
-    { id: 'command', label: 'Command Line', icon: Terminal },
-    { id: 'resources', label: 'Resources', icon: Server },
-    { id: 'monitoring', label: 'Monitoring', icon: BarChart3 },
-    { id: 'security', label: 'Security', icon: Shield },
-    { id: 'billing', label: 'Billing', icon: DollarSign },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, requiredRole: 'guest' },
+    { id: 'nlp', label: 'Natural Language', icon: MessageSquare, requiredRole: 'user' },
+    { id: 'command', label: 'Command Line', icon: Terminal, requiredRole: 'admin' },
+    { id: 'resources', label: 'Resources', icon: Server, requiredRole: 'user' },
+    { id: 'monitoring', label: 'Monitoring', icon: BarChart3, requiredRole: 'guest' },
+    { id: 'security', label: 'Security', icon: Shield, requiredRole: 'admin' },
+    { id: 'billing', label: 'Billing', icon: DollarSign, requiredRole: 'user' },
+    { id: 'settings', label: 'Settings', icon: Settings, requiredRole: 'guest' },
   ];
+
+  const roleHierarchy = {
+    guest: 0,
+    user: 1,
+    admin: 2,
+    superadmin: 3
+  };
+
+  const userLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] || 0;
+
+  const hasAccess = (requiredRole: string) => {
+    const requiredLevel = roleHierarchy[requiredRole as keyof typeof roleHierarchy] || 1;
+    return userLevel >= requiredLevel;
+  };
 
   return (
     <aside className="w-64 bg-gray-800 border-r border-gray-700">
@@ -34,8 +49,12 @@ export function Sidebar({ activeView, setActiveView }: SidebarProps) {
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg"></div>
           <span className="text-xl font-bold">CloudFlow</span>
         </div>
+        <div className="mb-4 px-3 py-2 bg-gray-700 rounded-lg">
+          <div className="text-xs text-gray-400">Role</div>
+          <div className="text-sm font-medium text-white capitalize">{userRole}</div>
+        </div>
         <nav className="space-y-2">
-          {menuItems.map((item) => {
+          {menuItems.filter(item => hasAccess(item.requiredRole)).map((item) => {
             const Icon = item.icon;
             return (
               <button

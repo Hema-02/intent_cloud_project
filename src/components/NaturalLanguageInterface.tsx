@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Send, Mic, MicOff } from 'lucide-react';
+import { Send, Mic, MicOff, Volume2 } from 'lucide-react';
 
 interface NaturalLanguageInterfaceProps {
   activeProvider: string;
@@ -8,6 +8,7 @@ interface NaturalLanguageInterfaceProps {
 export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInterfaceProps) {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [conversation, setConversation] = useState([
     {
       type: 'system',
@@ -15,6 +16,61 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
       timestamp: new Date().toLocaleTimeString(),
     },
   ]);
+
+  // Initialize speech recognition
+  React.useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'en-US';
+      
+      recognitionInstance.onstart = () => {
+        setIsListening(true);
+      };
+      
+      recognitionInstance.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+      
+      recognitionInstance.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+      
+      recognitionInstance.onend = () => {
+        setIsListening(false);
+      };
+      
+      setRecognition(recognitionInstance);
+    }
+  }, []);
+
+  const toggleVoiceInput = () => {
+    if (!recognition) {
+      alert('Speech recognition is not supported in your browser');
+      return;
+    }
+
+    if (isListening) {
+      recognition.stop();
+    } else {
+      recognition.start();
+    }
+  };
+
+  const speakResponse = (text: string) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      speechSynthesis.speak(utterance);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +90,7 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
     };
 
     setConversation([...conversation, userMessage, aiResponse]);
+    speakResponse(aiResponse.message);
     setInput('');
   };
 
@@ -79,6 +136,15 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
                 <div className="text-sm font-medium mb-1">
                   {message.type === 'user' ? 'You' : message.type === 'ai' ? 'CloudFlow AI' : 'System'}
                 </div>
+                {message.type === 'ai' && (
+                  <button
+                    onClick={() => speakResponse(message.message)}
+                    className="float-right p-1 text-gray-400 hover:text-white transition-colors"
+                    title="Read aloud"
+                  >
+                    <Volume2 className="w-3 h-3" />
+                  </button>
+                )}
                 <div className="text-sm">{message.message}</div>
                 <div className="text-xs opacity-70 mt-2">{message.timestamp}</div>
               </div>
@@ -98,9 +164,11 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
               />
               <button
                 type="button"
-                onClick={() => setIsListening(!isListening)}
+                onClick={toggleVoiceInput}
+                disabled={!recognition}
                 className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded ${
-                  isListening ? 'text-red-400' : 'text-gray-400 hover:text-white'
+                  isListening ? 'text-red-400 animate-pulse' : 
+                  !recognition ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -108,12 +176,18 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
             </div>
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2"
+              disabled={!input.trim()}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2"
             >
               <Send className="w-4 h-4" />
               <span>Send</span>
             </button>
           </form>
+          {isListening && (
+            <div className="text-center text-sm text-blue-400 animate-pulse">
+              Listening... Speak now
+            </div>
+          )}
         </div>
       </div>
     </div>
