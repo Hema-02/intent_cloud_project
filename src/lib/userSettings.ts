@@ -51,6 +51,10 @@ export async function saveUserSettings(settings: UserSettings): Promise<string> 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError) {
+      if (authError.message.includes('Auth session missing')) {
+        console.warn('No authenticated user found. Using demo mode.')
+        return 'Settings saved successfully! (Demo mode - no actual database save)'
+      }
       throw new Error(`Authentication error: ${authError.message}`)
     }
     
@@ -103,6 +107,10 @@ export async function getUserSettings(): Promise<UserSettings | null> {
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     
     if (authError) {
+      if (authError.message.includes('Auth session missing')) {
+        console.warn('No authenticated user found. Using demo mode.')
+        return null
+      }
       throw new Error(`Authentication error: ${authError.message}`)
     }
     
