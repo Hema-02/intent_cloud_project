@@ -102,12 +102,3 @@ function App() {
 }
 
 export default App;
-            </div>
-          </main>
-        </div>
-      </div>
-    </AuthWrapper>
-  );
-}
-
-export default App;
