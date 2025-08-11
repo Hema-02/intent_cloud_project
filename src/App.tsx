@@ -11,77 +11,97 @@ import { Settings } from './components/Settings';
 import { NaturalLanguageInterface } from './components/NaturalLanguageInterface';
 import { CommandInterface } from './components/CommandInterface';
 import { RoleGuard } from './components/RoleGuard';
+import { CloudProviderTabs } from './components/CloudProviderTabs';
 
 export type ViewType = 'dashboard' | 'resources' | 'monitoring' | 'security' | 'billing' | 'settings' | 'natural-language' | 'command-line';
 
 function App() {
   const [activeView, setActiveView] = useState<ViewType>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeProvider, setActiveProvider] = useState<'aws' | 'azure' | 'gcp'>('aws');
 
-  const renderView = () => {
+  const renderView = (user: any) => {
     switch (activeView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard activeProvider={activeProvider} />;
       case 'resources':
         return (
-          <RoleGuard requiredRole="user">
-            <ResourceManager />
+          <RoleGuard requiredRole="user" userRole={user?.role || 'guest'}>
+            <ResourceManager activeProvider={activeProvider} />
           </RoleGuard>
         );
       case 'monitoring':
-        return <Monitoring />;
+        return <Monitoring activeProvider={activeProvider} />;
       case 'security':
         return (
-          <RoleGuard requiredRole="admin">
-            <Security />
+          <RoleGuard requiredRole="admin" userRole={user?.role || 'guest'}>
+            <Security activeProvider={activeProvider} />
           </RoleGuard>
         );
       case 'billing':
         return (
-          <RoleGuard requiredRole="user">
-            <Billing />
+          <RoleGuard requiredRole="user" userRole={user?.role || 'guest'}>
+            <Billing activeProvider={activeProvider} />
           </RoleGuard>
         );
       case 'settings':
-        return <Settings />;
+        return <Settings activeProvider={activeProvider} />;
       case 'natural-language':
         return (
-          <RoleGuard requiredRole="user">
-            <NaturalLanguageInterface />
+          <RoleGuard requiredRole="user" userRole={user?.role || 'guest'}>
+            <NaturalLanguageInterface activeProvider={activeProvider} />
           </RoleGuard>
         );
       case 'command-line':
         return (
-          <RoleGuard requiredRole="admin">
-            <CommandInterface />
+          <RoleGuard requiredRole="admin" userRole={user?.role || 'guest'}>
+            <CommandInterface activeProvider={activeProvider} />
           </RoleGuard>
         );
       default:
-        return <Dashboard />;
+        return <Dashboard activeProvider={activeProvider} />;
     }
   };
 
   return (
     <AuthWrapper>
-      <div className="min-h-screen bg-gray-50">
-        <Header 
-          activeView={activeView}
-          setActiveView={setActiveView}
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-        />
-        
-        <div className="flex">
-          <Sidebar 
+      {(user, signOut) => (
+        <div className="min-h-screen bg-gray-50">
+          <Header 
             activeView={activeView}
             setActiveView={setActiveView}
             sidebarOpen={sidebarOpen}
             setSidebarOpen={setSidebarOpen}
+            user={user}
+            onSignOut={signOut}
           />
           
-          <main className="flex-1 lg:ml-64">
-            <div className="p-6">
-              {renderView()}
+          <div className="flex">
+            <Sidebar 
+              activeView={activeView}
+              setActiveView={setActiveView}
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+              userRole={user?.role || 'guest'}
+            />
+            
+            <main className="flex-1 lg:ml-64">
+              <div className="p-6">
+                <CloudProviderTabs 
+                  activeProvider={activeProvider}
+                  setActiveProvider={setActiveProvider}
+                />
+                {renderView(user)}
+              </div>
+            </main>
+          </div>
+        </div>
+      )}
+    </AuthWrapper>
+  );
+}
+
+export default App;
             </div>
           </main>
         </div>
