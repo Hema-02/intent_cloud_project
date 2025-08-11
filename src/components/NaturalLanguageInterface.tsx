@@ -95,17 +95,115 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
   };
 
   const generateAIResponse = (userInput: string, provider: string) => {
-    const responses = {
-      'create': `I'll help you create a new resource on ${provider.toUpperCase()}. Let me configure the optimal settings for your request.`,
-      'list': `Here are your current resources on ${provider.toUpperCase()}:`,
-      'delete': `I'll help you safely delete the specified resource. Please confirm this action.`,
-      'scale': `I'll scale your resources according to your requirements on ${provider.toUpperCase()}.`,
-      'monitor': `Here's the current monitoring data for your ${provider.toUpperCase()} resources.`,
+    const input = userInput.toLowerCase();
+    
+    // More comprehensive response matching
+    if (input.includes('create') || input.includes('launch') || input.includes('start')) {
+      return `I'll help you create a new resource on ${provider.toUpperCase()}. Here's what I can do:
+
+• Creating a new t3.medium instance in us-east-1
+• Configuring security groups and networking
+• Setting up monitoring and alerts
+• Estimated cost: $0.0416/hour
+
+Would you like me to proceed with the creation?`;
+    }
+    
+    if (input.includes('list') || input.includes('show') || input.includes('display')) {
+      return `Here are your current resources on ${provider.toUpperCase()}:
+
+**Compute Instances (3)**
+• i-1234567890abc - web-server-01 (t3.large) - Running
+• i-0987654321def - db-server-01 (t2.micro) - Stopped  
+• i-abcdef123456 - api-server-01 (m5.xlarge) - Running
+
+**Databases (2)**
+• prod-database (PostgreSQL) - Available
+• test-database (MySQL) - Maintenance
+
+**Storage**
+• app-assets bucket - 1.2TB
+• backup-data bucket - 850GB`;
+    }
+    
+    if (input.includes('delete') || input.includes('remove') || input.includes('terminate')) {
+      return `⚠️ I'll help you safely delete the specified resource. 
+
+**Important**: This action cannot be undone. Please confirm:
+• Which resource would you like to delete?
+• Have you backed up any important data?
+• Are there any dependencies I should check?
+
+Please provide the resource ID or name to proceed.`;
+    }
+    
+    if (input.includes('scale') || input.includes('resize') || input.includes('upgrade')) {
+      return `I'll help you scale your resources on ${provider.toUpperCase()}:
+
+**Current Scaling Options:**
+• Auto Scaling Groups: 2 active
+• Current capacity: 3-8 instances
+• CPU target: 70%
+• Scale-out cooldown: 300 seconds
+
+What scaling changes would you like to make?`;
+    }
+    
+    if (input.includes('monitor') || input.includes('status') || input.includes('health')) {
+      return `Here's the current monitoring data for your ${provider.toUpperCase()} resources:
+
+**System Health: ✅ Good**
+• CPU Usage: 67% (Normal)
+• Memory Usage: 45% (Good)
+• Network I/O: 2.3 GB/s
+• Disk Usage: 78% (Monitor)
+
+**Active Alerts: 2**
+• High CPU on i-1234567890abc (2 min ago)
+• Memory warning on db-server-01 (15 min ago)`;
+    }
+    
+    if (input.includes('cost') || input.includes('billing') || input.includes('price')) {
+      return `Here's your current billing information for ${provider.toUpperCase()}:
+
+**This Month: $2,847.32**
+• EC2 Instances: $1,245.67 (44%)
+• S3 Storage: $567.89 (20%)
+• RDS Databases: $423.12 (15%)
+• Other Services: $610.64 (21%)
+
+**Trend**: +7.3% from last month
+**Projected Annual**: $34.2K`;
+    }
+    
+    if (input.includes('security') || input.includes('access') || input.includes('permissions')) {
+      return `Security overview for your ${provider.toUpperCase()} environment:
+
+**Security Score: 85/100** ⚠️
+• Security Groups: 28 configured
+• IAM Policies: 156 active
+• Access Keys: 12 (2 unused)
+• Active Users: 45
+
+**Vulnerabilities Found: 3**
+• High: Unrestricted SSH access
+• Medium: Unused access key
+• Low: Weak password policy`;
     };
 
-    const key = Object.keys(responses).find(k => userInput.toLowerCase().includes(k));
-    return key ? responses[key as keyof typeof responses] : 
-      `I understand you want to: "${userInput}". Let me process this request for your ${provider.toUpperCase()} environment.`;
+    // Default response for unmatched queries
+    return `I understand you want to: "${userInput}"
+
+I can help you with:
+• **Create** - Launch new instances, databases, storage
+• **List/Show** - Display your current resources
+• **Delete** - Safely remove resources
+• **Scale** - Resize or auto-scale resources  
+• **Monitor** - Check system health and metrics
+• **Cost** - View billing and usage information
+• **Security** - Review security settings and alerts
+
+What would you like me to help you with?`;
   };
 
   return (

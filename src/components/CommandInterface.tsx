@@ -70,7 +70,7 @@ export function CommandInterface({ activeProvider }: CommandInterfaceProps) {
     },
   };
 
-  const handleSubmit = (e: React.FormForm) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 

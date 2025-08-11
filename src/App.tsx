@@ -59,7 +59,7 @@ function App() {
         );
       case 'command-line':
         return (
-          <RoleGuard requiredRole="admin" userRole={user?.role || 'guest'}>
+          <RoleGuard requiredRole="user" userRole={user?.role || getDemoUserRole()}>
             <CommandInterface activeProvider={activeProvider} />
           </RoleGuard>
         );
