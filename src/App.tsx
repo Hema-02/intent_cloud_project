@@ -20,6 +20,11 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeProvider, setActiveProvider] = useState<'aws' | 'azure' | 'gcp'>('aws');
 
+  const getDemoUserRole = (): string => {
+    // Demo users get 'user' role by default to access most features
+    return 'user';
+  }
+
   const renderView = (user: any) => {
     switch (activeView) {
       case 'dashboard':
@@ -82,7 +87,7 @@ function App() {
               setActiveView={setActiveView}
               sidebarOpen={sidebarOpen}
               setSidebarOpen={setSidebarOpen}
-              userRole={user?.role || 'guest'}
+              userRole={user?.role || getDemoUserRole()}
             />
             
             <main className="flex-1 lg:ml-64">
@@ -91,7 +96,7 @@ function App() {
                   activeProvider={activeProvider}
                   setActiveProvider={setActiveProvider}
                 />
-                {renderView(user)}
+                {renderView(user || { role: getDemoUserRole() })}
               </div>
             </main>
           </div>

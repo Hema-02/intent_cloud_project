@@ -66,6 +66,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     return role || 'user';
   };
 
+  const getDemoUserRole = (): string => {
+    // Demo users get 'user' role by default to access most features
+    return 'user';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">

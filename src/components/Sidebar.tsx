@@ -19,12 +19,12 @@ interface SidebarProps {
 export function Sidebar({ activeView, setActiveView, userRole }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, requiredRole: 'guest' },
-    { id: 'nlp', label: 'Natural Language', icon: MessageSquare, requiredRole: 'user' },
-    { id: 'command', label: 'Command Line', icon: Terminal, requiredRole: 'admin' },
-    { id: 'resources', label: 'Resources', icon: Server, requiredRole: 'user' },
+    { id: 'natural-language', label: 'Natural Language', icon: MessageSquare, requiredRole: 'user' },
+    { id: 'command-line', label: 'Command Line', icon: Terminal, requiredRole: 'admin' },
+    { id: 'resources', label: 'Resources', icon: Server, requiredRole: 'guest' },
     { id: 'monitoring', label: 'Monitoring', icon: BarChart3, requiredRole: 'guest' },
     { id: 'security', label: 'Security', icon: Shield, requiredRole: 'admin' },
-    { id: 'billing', label: 'Billing', icon: DollarSign, requiredRole: 'user' },
+    { id: 'billing', label: 'Billing', icon: DollarSign, requiredRole: 'guest' },
     { id: 'settings', label: 'Settings', icon: Settings, requiredRole: 'guest' },
   ];
 
