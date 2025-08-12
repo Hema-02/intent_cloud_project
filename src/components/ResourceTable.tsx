@@ -1,14 +1,31 @@
 import React from 'react';
-import { MoreVertical, Play, Square, Trash2 } from 'lucide-react';
+import { MoreVertical, Play, Square, Trash2, RefreshCw } from 'lucide-react';
+import { resourcesAPI } from '../lib/api';
 
 interface ResourceTableProps {
   activeProvider: string;
   resourceType: string;
   searchTerm: string;
+  resources?: any;
+  loading?: boolean;
+  onRefresh?: () => void;
 }
 
-export function ResourceTable({ activeProvider, resourceType, searchTerm }: ResourceTableProps) {
+export function ResourceTable({ 
+  activeProvider, 
+  resourceType, 
+  searchTerm, 
+  resources: apiResources,
+  loading = false,
+  onRefresh
+}: ResourceTableProps) {
   const getResourceData = () => {
+    // Use API data if available, otherwise fall back to mock data
+    if (apiResources && apiResources[resourceType]) {
+      return apiResources[resourceType];
+    }
+
+    // Fallback mock data
     const data = {
       instances: [
         { id: 'i-1234567890abc', name: 'web-server-01', type: 't3.large', status: 'running', region: 'us-east-1' },
@@ -27,6 +44,28 @@ export function ResourceTable({ activeProvider, resourceType, searchTerm }: Reso
     return data[resourceType as keyof typeof data] || [];
   };
 
+  const handleAction = async (action: string, resourceId: string) => {
+    try {
+      switch (action) {
+        case 'start':
+          await resourcesAPI.update(activeProvider, resourceType, resourceId, { status: 'running' });
+          break;
+        case 'stop':
+          await resourcesAPI.update(activeProvider, resourceType, resourceId, { status: 'stopped' });
+          break;
+        case 'delete':
+          if (confirm('Are you sure you want to delete this resource?')) {
+            await resourcesAPI.delete(activeProvider, resourceType, resourceId);
+          }
+          break;
+      }
+      onRefresh?.();
+    } catch (error) {
+      console.error(`Failed to ${action} resource:`, error);
+      alert(`Failed to ${action} resource. Please try again.`);
+    }
+  };
+
   const resources = getResourceData().filter(resource =>
     resource.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -43,7 +82,30 @@ export function ResourceTable({ activeProvider, resourceType, searchTerm }: Reso
   };
 
   return (
-    <div className="overflow-x-auto">
+    <div className="space-y-4">
+      {onRefresh && (
+        <div className="flex justify-end">
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            <span>{loading ? 'Loading...' : 'Refresh'}</span>
+          </button>
+        </div>
+      )}
+      
+      <div className="overflow-x-auto">
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="text-gray-400">Loading resources...</div>
+          </div>
+        ) : resources.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-gray-400">No resources found</div>
+          </div>
+        ) : (
       <table className="w-full">
         <thead className="bg-gray-750">
           <tr>
@@ -78,15 +140,27 @@ export function ResourceTable({ activeProvider, resourceType, searchTerm }: Reso
                 <div className="flex items-center space-x-2">
                   {resourceType === 'instances' && (
                     <>
-                      <button className="p-1 text-gray-400 hover:text-green-400 transition-colors">
+                      <button 
+                        onClick={() => handleAction('start', resource.id)}
+                        className="p-1 text-gray-400 hover:text-green-400 transition-colors"
+                        title="Start"
+                      >
                         <Play className="w-4 h-4" />
                       </button>
-                      <button className="p-1 text-gray-400 hover:text-yellow-400 transition-colors">
+                      <button 
+                        onClick={() => handleAction('stop', resource.id)}
+                        className="p-1 text-gray-400 hover:text-yellow-400 transition-colors"
+                        title="Stop"
+                      >
                         <Square className="w-4 h-4" />
                       </button>
                     </>
                   )}
-                  <button className="p-1 text-gray-400 hover:text-red-400 transition-colors">
+                  <button 
+                    onClick={() => handleAction('delete', resource.id)}
+                    className="p-1 text-gray-400 hover:text-red-400 transition-colors"
+                    title="Delete"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                   <button className="p-1 text-gray-400 hover:text-white transition-colors">
@@ -98,6 +172,8 @@ export function ResourceTable({ activeProvider, resourceType, searchTerm }: Reso
           ))}
         </tbody>
       </table>
+        )}
+      </div>
     </div>
   );
 }

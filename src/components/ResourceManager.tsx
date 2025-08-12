@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Search, Filter } from 'lucide-react';
 import { ResourceTable } from './ResourceTable';
 import { CreateResourceModal } from './CreateResourceModal';
+import { resourcesAPI } from '../lib/api';
 
 interface ResourceManagerProps {
   activeProvider: string;
@@ -11,6 +12,8 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedResourceType, setSelectedResourceType] = useState('instances');
   const [searchTerm, setSearchTerm] = useState('');
+  const [resources, setResources] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
   const resourceTypes = {
     instances: 'Compute Instances',
@@ -18,6 +21,36 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
     storage: 'Storage',
     networking: 'Networking',
     security: 'Security',
+  };
+
+  // Load resources when component mounts or provider/type changes
+  React.useEffect(() => {
+    loadResources();
+  }, [activeProvider, selectedResourceType]);
+
+  const loadResources = async () => {
+    setLoading(true);
+    try {
+      const data = await resourcesAPI.getAll(activeProvider, selectedResourceType);
+      setResources(data.resources);
+    } catch (error) {
+      console.error('Failed to load resources:', error);
+      // Fallback to mock data if API fails
+      setResources(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateResource = async (resourceData: any) => {
+    try {
+      await resourcesAPI.create(activeProvider, selectedResourceType, resourceData);
+      setShowCreateModal(false);
+      loadResources(); // Refresh the list
+    } catch (error) {
+      console.error('Failed to create resource:', error);
+      alert('Failed to create resource. Please try again.');
+    }
   };
 
   return (
@@ -70,13 +103,18 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
           activeProvider={activeProvider}
           resourceType={selectedResourceType}
           searchTerm={searchTerm}
+          resources={resources}
+          loading={loading}
+          onRefresh={loadResources}
         />
       </div>
 
       {showCreateModal && (
         <CreateResourceModal
           activeProvider={activeProvider}
+          resourceType={selectedResourceType}
           onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateResource}
         />
       )}
     </div>

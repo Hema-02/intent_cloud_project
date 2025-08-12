@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, Mic, MicOff, Volume2 } from 'lucide-react';
+import { nlpAPI } from '../lib/api';
 
 interface NaturalLanguageInterfaceProps {
   activeProvider: string;
@@ -8,6 +9,7 @@ interface NaturalLanguageInterfaceProps {
 export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInterfaceProps) {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [conversation, setConversation] = useState([
     {
@@ -72,26 +74,122 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
+    setIsProcessing(true);
     const userMessage = {
       type: 'user',
       message: input,
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    // Simulate AI response
-    const aiResponse = {
-      type: 'ai',
-      message: generateAIResponse(input, activeProvider),
-      timestamp: new Date().toLocaleTimeString(),
-    };
-
-    setConversation([...conversation, userMessage, aiResponse]);
-    speakResponse(aiResponse.message);
+    setConversation(prev => [...prev, userMessage]);
     setInput('');
+
+    try {
+      // Call backend API for natural language processing
+      const response = await nlpAPI.process(input, activeProvider);
+      
+      const aiResponse = {
+        type: 'ai',
+        message: formatAPIResponse(response.response),
+        timestamp: new Date().toLocaleTimeString(),
+      };
+
+      setConversation(prev => [...prev, aiResponse]);
+      speakResponse(aiResponse.message);
+    } catch (error) {
+      console.error('NLP API error:', error);
+      
+      const errorResponse = {
+        type: 'ai',
+        message: 'Sorry, I encountered an error processing your request. Please try again or check if the backend server is running.',
+        timestamp: new Date().toLocaleTimeString(),
+      };
+      
+      setConversation(prev => [...prev, errorResponse]);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const formatAPIResponse = (response: any) => {
+    let message = response.message;
+    
+    if (response.details) {
+      const { details } = response;
+      
+      if (details.type === 'resource_listing' && details.resources) {
+        message += '\n\n**Compute Instances:**';
+        details.resources.instances?.forEach((instance: any) => {
+          message += `\n• ${instance.name} (${instance.id}) - ${instance.status} - ${instance.type}`;
+        });
+        
+        if (details.resources.databases?.length > 0) {
+          message += '\n\n**Databases:**';
+          details.resources.databases.forEach((db: any) => {
+            message += `\n• ${db.name} (${db.engine}) - ${db.status}`;
+          });
+        }
+      }
+      
+      if (details.type === 'instance_creation' && details.suggestedConfig) {
+        message += `\n\n**Suggested Configuration:**`;
+        message += `\n• Instance Type: ${details.suggestedConfig.instanceType}`;
+        message += `\n• Region: ${details.suggestedConfig.region}`;
+        message += `\n• Estimated Cost: ${details.suggestedConfig.estimatedCost}`;
+        
+        if (details.nextSteps) {
+          message += '\n\n**Next Steps:**';
+          details.nextSteps.forEach((step: string, index: number) => {
+            message += `\n${index + 1}. ${step}`;
+          });
+        }
+      }
+      
+      if (details.type === 'monitoring_data' && details.metrics) {
+        message += `\n\n**Current Metrics:**`;
+        Object.entries(details.metrics).forEach(([key, value]) => {
+          message += `\n• ${key.toUpperCase()}: ${value}`;
+        });
+        
+        if (details.alerts?.length > 0) {
+          message += '\n\n**Active Alerts:**';
+          details.alerts.forEach((alert: any) => {
+            message += `\n• ${alert.severity.toUpperCase()}: ${alert.message} (${alert.time})`;
+          });
+        }
+      }
+      
+      if (details.type === 'billing_data' && details.breakdown) {
+        message += `\n\n**Cost Breakdown:**`;
+        Object.entries(details.breakdown).forEach(([service, cost]) => {
+          message += `\n• ${service}: ${cost}`;
+        });
+        message += `\n\n**Trend**: ${details.trend}`;
+        message += `\n**Projected Annual**: ${details.projectedAnnual}`;
+      }
+      
+      if (details.type === 'security_data') {
+        message += `\n\n**Security Score**: ${details.securityScore} (${details.status})`;
+        message += `\n\n**Summary:**`;
+        Object.entries(details.summary).forEach(([key, value]) => {
+          const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          message += `\n• ${label}: ${value}`;
+        });
+        
+        if (details.vulnerabilities?.length > 0) {
+          message += '\n\n**Vulnerabilities:**';
+          details.vulnerabilities.forEach((vuln: any) => {
+            message += `\n• ${vuln.severity.toUpperCase()}: ${vuln.issue}`;
+          });
+        }
+      }
+    }
+    
+    return message;
   };
 
   const generateAIResponse = (userInput: string, provider: string) => {
@@ -274,16 +372,21 @@ What would you like me to help you with?`;
             </div>
             <button
               type="submit"
-              disabled={!input.trim()}
+              disabled={!input.trim() || isProcessing}
               className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg transition-colors flex items-center space-x-2"
             >
               <Send className="w-4 h-4" />
-              <span>Send</span>
+              <span>{isProcessing ? 'Processing...' : 'Send'}</span>
             </button>
           </form>
           {isListening && (
             <div className="text-center text-sm text-blue-400 animate-pulse">
               Listening... Speak now
+            </div>
+          )}
+          {isProcessing && (
+            <div className="text-center text-sm text-blue-400 animate-pulse mt-2">
+              Processing your request...
             </div>
           )}
         </div>

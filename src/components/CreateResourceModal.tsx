@@ -3,22 +3,55 @@ import { X } from 'lucide-react';
 
 interface CreateResourceModalProps {
   activeProvider: string;
+  resourceType?: string;
   onClose: () => void;
+  onCreate?: (data: any) => void;
 }
 
-export function CreateResourceModal({ activeProvider, onClose }: CreateResourceModalProps) {
-  const [resourceType, setResourceType] = useState('instance');
+export function CreateResourceModal({ 
+  activeProvider, 
+  resourceType: initialResourceType = 'instances',
+  onClose,
+  onCreate
+}: CreateResourceModalProps) {
+  const [resourceType, setResourceType] = useState(initialResourceType);
   const [formData, setFormData] = useState({
     name: '',
-    type: '',
+    instanceType: '',
     region: 'us-east-1',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle resource creation logic here
-    console.log('Creating resource:', { ...formData, resourceType, provider: activeProvider });
-    onClose();
+    
+    if (!formData.name || !formData.instanceType) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const resourceData = {
+        name: formData.name,
+        instanceType: formData.instanceType,
+        region: formData.region,
+        resourceType,
+        provider: activeProvider
+      };
+
+      if (onCreate) {
+        await onCreate(resourceData);
+      } else {
+        console.log('Creating resource:', resourceData);
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error creating resource:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -42,10 +75,11 @@ export function CreateResourceModal({ activeProvider, onClose }: CreateResourceM
             <select
               value={resourceType}
               onChange={(e) => setResourceType(e.target.value)}
+              disabled={!!initialResourceType}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="instance">Compute Instance</option>
-              <option value="database">Database</option>
+              <option value="instances">Compute Instance</option>
+              <option value="databases">Database</option>
               <option value="storage">Storage</option>
             </select>
           </div>
@@ -69,8 +103,8 @@ export function CreateResourceModal({ activeProvider, onClose }: CreateResourceM
               Type/Size
             </label>
             <select
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              value={formData.instanceType}
+              onChange={(e) => setFormData({ ...formData, instanceType: e.target.value })}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >
@@ -108,9 +142,10 @@ export function CreateResourceModal({ activeProvider, onClose }: CreateResourceM
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors"
             >
-              Create
+              {isSubmitting ? 'Creating...' : 'Create'}
             </button>
           </div>
         </form>
