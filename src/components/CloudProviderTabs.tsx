@@ -13,13 +13,13 @@ export function CloudProviderTabs({ activeProvider, setActiveProvider }: CloudPr
   ];
 
   return (
-    <div className="bg-gray-800 border-b border-gray-700 px-6">
+    <div className="bg-gray-800 border-b border-gray-700 px-4 mb-4">
       <div className="flex space-x-1">
         {providers.map((provider) => (
           <button
             key={provider.id}
             onClick={() => setActiveProvider(provider.id)}
-            className={`px-6 py-3 text-sm font-medium rounded-t-lg transition-colors ${
+            className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
               activeProvider === provider.id
                 ? 'bg-gray-700 text-white border-b-2 border-blue-500'
                 : 'text-gray-400 hover:text-white hover:bg-gray-700'

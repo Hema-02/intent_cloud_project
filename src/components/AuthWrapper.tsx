@@ -76,6 +76,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     setUser(null);
+    setShowAuth(false); // Reset auth modal state
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -162,7 +163,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
   }
 
   // Show auth UI if user wants to sign in
-  if (showAuth && !user && supabase) {
+  if (showAuth && !user) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
         <div className="bg-gray-800 p-8 rounded-lg border border-gray-700 w-full max-w-md">
@@ -173,7 +174,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
             </p>
           </div>
           
-          {/* Custom Auth Form */}
+          {/* Custom Auth Form - Always show regardless of Supabase availability */}
           <form onSubmit={handleAuthSubmit} className="space-y-4">
             {authMode === 'signup' && (
               <div>

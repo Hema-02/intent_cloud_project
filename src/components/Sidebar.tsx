@@ -43,9 +43,9 @@ export function Sidebar({ activeView, setActiveView, userRole }: SidebarProps) {
   };
 
   return (
-    <aside className="w-64 bg-gray-800 border-r border-gray-700">
-      <div className="p-6">
-        <div className="flex items-center space-x-2 mb-8">
+    <aside className="fixed left-0 top-16 w-64 h-[calc(100vh-4rem)] bg-gray-800 border-r border-gray-700 overflow-y-auto">
+      <div className="p-4">
+        <div className="flex items-center space-x-2 mb-6">
           <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg"></div>
           <span className="text-xl font-bold">CloudFlow</span>
         </div>
@@ -53,14 +53,14 @@ export function Sidebar({ activeView, setActiveView, userRole }: SidebarProps) {
           <div className="text-xs text-gray-400">Role</div>
           <div className="text-sm font-medium text-white capitalize">{userRole}</div>
         </div>
-        <nav className="space-y-2">
+        <nav className="space-y-1">
           {menuItems.filter(item => hasAccess(item.requiredRole)).map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.id}
                 onClick={() => setActiveView(item.id)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                   activeView === item.id
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-300 hover:bg-gray-700 hover:text-white'
