@@ -70,12 +70,12 @@ function App() {
 
   return (
     <AuthWrapper>
-      {(user, signOut) => (
+      {(user, signOut, showAuthModal) => (
         <div className="min-h-screen bg-gray-900">
           <Header 
             user={user}
             onSignOut={signOut}
-            onSearch={(query) => console.log('Search:', query)}
+            onSignIn={showAuthModal}
           />
           
           <div className="flex">

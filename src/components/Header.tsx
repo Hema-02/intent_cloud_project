@@ -4,10 +4,10 @@ import { User, LogOut } from 'lucide-react';
 interface HeaderProps {
   user: any;
   onSignOut: () => void;
-  onShowAuth: () => void;
+  onSignIn: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ user, onSignOut, onShowAuth }) => {
+export const Header: React.FC<HeaderProps> = ({ user, onSignOut, onSignIn }) => {
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-50">
       <div className="flex items-center">
@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onSignOut, onShowAuth }) =
           </div>
         ) : (
           <button
-            onClick={onShowAuth}
+            onClick={onSignIn}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
           >
             Sign In

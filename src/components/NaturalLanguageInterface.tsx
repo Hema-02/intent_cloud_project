@@ -86,11 +86,12 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
     };
 
     setConversation(prev => [...prev, userMessage]);
-    setInput('');
+    const currentInput = input;
+    setInput(''); // Clear input immediately for better UX
 
     try {
       // Call backend API for natural language processing
-      const response = await nlpAPI.process(input, activeProvider);
+      const response = await nlpAPI.process(currentInput, activeProvider);
       
       const aiResponse = {
         type: 'ai',
@@ -103,15 +104,25 @@ export function NaturalLanguageInterface({ activeProvider }: NaturalLanguageInte
     } catch (error) {
       console.error('NLP API error:', error);
       
+      // Fallback to local processing if API fails
+      const fallbackResponse = generateAIResponse(currentInput, activeProvider);
       const errorResponse = {
         type: 'ai',
-        message: 'Sorry, I encountered an error processing your request. Please try again or check if the backend server is running.',
+        message: fallbackResponse,
         timestamp: new Date().toLocaleTimeString(),
       };
       
       setConversation(prev => [...prev, errorResponse]);
     } finally {
       setIsProcessing(false);
+      
+      // Auto-scroll to bottom after response
+      setTimeout(() => {
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer) {
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+      }, 100);
     }
   };
 
@@ -314,7 +325,7 @@ What would you like me to help you with?`;
       </div>
 
       <div className="flex-1 bg-gray-800 rounded-lg border border-gray-700 flex flex-col">
-        <div className="flex-1 p-6 overflow-auto space-y-4">
+        <div className="flex-1 p-6 overflow-auto space-y-4 chat-container">
           {conversation.map((message, index) => (
             <div
               key={index}
@@ -366,7 +377,7 @@ What would you like me to help you with?`;
                   isListening ? 'text-red-400 animate-pulse' : 
                   !recognition ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white'
                 }`}
-              >
+                <Send className={`w-4 h-4 ${isProcessing ? 'animate-pulse' : ''}`} />
                 {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
             </div>

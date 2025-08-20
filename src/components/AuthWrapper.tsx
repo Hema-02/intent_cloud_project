@@ -6,7 +6,7 @@ import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { User } from '@supabase/supabase-js';
 
 interface AuthWrapperProps {
-  children: (user: User | null, signOut: () => void) => React.ReactNode;
+  children: (user: User | null, signOut: () => void, showAuthModal: () => void) => React.ReactNode;
 }
 
 export function AuthWrapper({ children }: AuthWrapperProps) {
@@ -76,7 +76,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     setUser(null);
-    setShowAuth(false); // Reset auth modal state
+    setShowAuth(false);
+  };
+
+  const showAuthModal = () => {
+    setShowAuth(true);
   };
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
@@ -269,12 +273,12 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
 
   return (
     <>
-      {children(userWithRole, signOut)}
+      {children(userWithRole, signOut, showAuthModal)}
       
       {/* Sign In Button for Demo Mode */}
       {!user && !showAuth && (
         <button
-          onClick={() => setShowAuth(true)}
+          onClick={showAuthModal}
           className="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg transition-colors"
         >
           Sign In

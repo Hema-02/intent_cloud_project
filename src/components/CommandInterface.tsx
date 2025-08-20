@@ -89,6 +89,14 @@ export function CommandInterface({ activeProvider }: CommandInterfaceProps) {
     setOutput(newOutput);
     setHistory([...history, input]);
     setInput('');
+    
+    // Auto-scroll to bottom after command execution
+    setTimeout(() => {
+      const terminal = document.querySelector('.terminal-output');
+      if (terminal) {
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }, 100);
   };
 
   return (
@@ -104,7 +112,7 @@ export function CommandInterface({ activeProvider }: CommandInterfaceProps) {
       </div>
 
       <div className="flex-1 bg-black rounded-lg border border-gray-700 p-6 font-mono text-sm">
-        <div className="text-green-400 mb-4 overflow-auto max-h-96">
+        <div className="text-green-400 mb-4 overflow-auto max-h-96 terminal-output">
           {output.map((line, index) => (
             <div key={index} className="whitespace-pre-wrap">
               {line}
@@ -131,7 +139,15 @@ export function CommandInterface({ activeProvider }: CommandInterfaceProps) {
           {Object.keys(commands).slice(0, 8).map((cmd) => (
             <button
               key={cmd}
-              onClick={() => setInput(cmd)}
+              onClick={() => {
+                setInput(cmd);
+                // Auto-focus the input after setting command
+                setTimeout(() => {
+                  if (inputRef.current) {
+                    inputRef.current.focus();
+                  }
+                }, 100);
+              }}
               className="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-2 rounded text-sm transition-colors"
             >
               {cmd}
