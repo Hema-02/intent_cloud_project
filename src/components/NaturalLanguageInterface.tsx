@@ -298,7 +298,7 @@ What scaling changes would you like to make?`;
 • High: Unrestricted SSH access
 • Medium: Unused access key
 • Low: Weak password policy`;
-    };
+    }
 
     // Default response for unmatched queries
     return `I understand you want to: "${userInput}"
@@ -377,6 +377,7 @@ What would you like me to help you with?`;
                   isListening ? 'text-red-400 animate-pulse' : 
                   !recognition ? 'text-gray-600 cursor-not-allowed' : 'text-gray-400 hover:text-white'
                 }`}
+              >
                 <Send className={`w-4 h-4 ${isProcessing ? 'animate-pulse' : ''}`} />
                 {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               </button>
