@@ -109,10 +109,31 @@ export function CreateResourceModal({
               required
             >
               <option value="">Select type</option>
-              <option value="t3.micro">t3.micro</option>
-              <option value="t3.small">t3.small</option>
-              <option value="t3.medium">t3.medium</option>
-              <option value="t3.large">t3.large</option>
+              {activeProvider === 'gcp' ? (
+                <>
+                  <option value="e2-micro">e2-micro (1 vCPU, 1GB RAM)</option>
+                  <option value="e2-small">e2-small (1 vCPU, 2GB RAM)</option>
+                  <option value="e2-medium">e2-medium (1 vCPU, 4GB RAM)</option>
+                  <option value="e2-standard-2">e2-standard-2 (2 vCPU, 8GB RAM)</option>
+                  <option value="e2-standard-4">e2-standard-4 (4 vCPU, 16GB RAM)</option>
+                  <option value="n1-standard-1">n1-standard-1 (1 vCPU, 3.75GB RAM)</option>
+                  <option value="n1-standard-2">n1-standard-2 (2 vCPU, 7.5GB RAM)</option>
+                </>
+              ) : activeProvider === 'azure' ? (
+                <>
+                  <option value="Standard_B1s">Standard_B1s (1 vCPU, 1GB RAM)</option>
+                  <option value="Standard_B2s">Standard_B2s (2 vCPU, 4GB RAM)</option>
+                  <option value="Standard_D2s_v3">Standard_D2s_v3 (2 vCPU, 8GB RAM)</option>
+                  <option value="Standard_D4s_v3">Standard_D4s_v3 (4 vCPU, 16GB RAM)</option>
+                </>
+              ) : (
+                <>
+                  <option value="t3.micro">t3.micro (2 vCPU, 1GB RAM)</option>
+                  <option value="t3.small">t3.small (2 vCPU, 2GB RAM)</option>
+                  <option value="t3.medium">t3.medium (2 vCPU, 4GB RAM)</option>
+                  <option value="t3.large">t3.large (2 vCPU, 8GB RAM)</option>
+                </>
+              )}
             </select>
           </div>
 
@@ -125,12 +146,50 @@ export function CreateResourceModal({
               onChange={(e) => setFormData({ ...formData, region: e.target.value })}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="us-east-1">US East (N. Virginia)</option>
-              <option value="us-west-2">US West (Oregon)</option>
-              <option value="eu-west-1">Europe (Ireland)</option>
-              <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+              {activeProvider === 'gcp' ? (
+                <>
+                  <option value="us-central1">US Central (Iowa)</option>
+                  <option value="us-east1">US East (South Carolina)</option>
+                  <option value="us-west1">US West (Oregon)</option>
+                  <option value="europe-west1">Europe West (Belgium)</option>
+                  <option value="asia-southeast1">Asia Southeast (Singapore)</option>
+                </>
+              ) : activeProvider === 'azure' ? (
+                <>
+                  <option value="eastus">East US</option>
+                  <option value="westus2">West US 2</option>
+                  <option value="centralus">Central US</option>
+                  <option value="westeurope">West Europe</option>
+                  <option value="southeastasia">Southeast Asia</option>
+                </>
+              ) : (
+                <>
+                  <option value="us-east-1">US East (N. Virginia)</option>
+                  <option value="us-west-2">US West (Oregon)</option>
+                  <option value="eu-west-1">Europe (Ireland)</option>
+                  <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                </>
+              )}
             </select>
           </div>
+
+          {activeProvider === 'gcp' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Zone
+              </label>
+              <select
+                value={formData.zone || ''}
+                onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
+                className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Auto-select zone</option>
+                <option value={`${formData.region}-a`}>{formData.region}-a</option>
+                <option value={`${formData.region}-b`}>{formData.region}-b</option>
+                <option value={`${formData.region}-c`}>{formData.region}-c</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex space-x-3 pt-4">
             <button

@@ -12,9 +12,13 @@ const monitoringRoutes = require('./routes/monitoring');
 const billingRoutes = require('./routes/billing');
 const securityRoutes = require('./routes/security');
 const nlpRoutes = require('./routes/nlp');
+const GCPService = require('./lib/gcp');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Initialize GCP service for health checks
+const gcpService = new GCPService();
 
 // Security middleware
 app.use(helmet());
@@ -53,6 +57,25 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development'
   });
+});
+
+// GCP health check endpoint
+app.get('/health/gcp', async (req, res) => {
+  try {
+    const gcpHealth = await gcpService.healthCheck();
+    res.json({
+      service: 'GCP',
+      ...gcpHealth,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      service: 'GCP',
+      status: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API routes

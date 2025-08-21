@@ -13,8 +13,13 @@ export function Dashboard({ activeProvider }: DashboardProps) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-white">Dashboard</h2>
-        <div className="text-sm text-gray-400">
-          Last updated: {new Date().toLocaleTimeString()}
+        <div className="flex items-center space-x-4">
+          <div className="text-sm text-gray-400">
+            Provider: {activeProvider.toUpperCase()}
+          </div>
+          <div className="text-sm text-gray-400">
+            Last updated: {new Date().toLocaleTimeString()}
+          </div>
         </div>
       </div>
 

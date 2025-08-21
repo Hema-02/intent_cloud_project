@@ -1,8 +1,12 @@
 const express = require('express');
 const { authenticateToken, authorizeRole } = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
+const GCPService = require('../lib/gcp');
 
 const router = express.Router();
+
+// Initialize GCP service
+const gcpService = new GCPService();
 
 // Mock data for different cloud providers
 const mockResources = {
@@ -53,6 +57,10 @@ router.get('/:provider', authenticateToken, (req, res) => {
     const { provider } = req.params;
     const { type } = req.query;
 
+    if (provider === 'gcp') {
+      return handleGCPResourceRequest(req, res, type);
+    }
+    
     if (!mockResources[provider]) {
       return res.status(404).json({
         error: 'Provider not found'
@@ -78,6 +86,51 @@ router.get('/:provider', authenticateToken, (req, res) => {
     });
   }
 });
+
+// Handle GCP resource requests
+async function handleGCPResourceRequest(req, res, type) {
+  try {
+    let resources = {};
+    
+    if (!type || type === 'instances') {
+      try {
+        const instances = await gcpService.listInstances();
+        resources.instances = instances;
+      } catch (error) {
+        console.error('Failed to fetch GCP instances:', error);
+        resources.instances = mockResources.gcp.instances;
+      }
+    }
+    
+    if (!type || type === 'storage') {
+      try {
+        const buckets = await gcpService.listStorageBuckets();
+        resources.storage = buckets;
+      } catch (error) {
+        console.error('Failed to fetch GCP storage:', error);
+        resources.storage = mockResources.gcp.storage;
+      }
+    }
+    
+    if (!type || type === 'databases') {
+      // For now, use mock data for databases
+      resources.databases = mockResources.gcp.databases;
+    }
+    
+    res.json({
+      provider: 'gcp',
+      resources,
+      timestamp: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('GCP resource request error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch GCP resources',
+      fallback: 'Using mock data'
+    });
+  }
+}
 
 // Get specific resource
 router.get('/:provider/:type/:id', authenticateToken, (req, res) => {
@@ -117,8 +170,12 @@ router.get('/:provider/:type/:id', authenticateToken, (req, res) => {
 router.post('/:provider/:type', authenticateToken, authorizeRole('user'), (req, res) => {
   try {
     const { provider, type } = req.params;
-    const { name, instanceType, region } = req.body;
+    const { name, instanceType, region, zone } = req.body;
 
+    if (provider === 'gcp') {
+      return handleGCPResourceCreation(req, res, type);
+    }
+    
     if (!mockResources[provider] || !mockResources[provider][type]) {
       return res.status(404).json({
         error: 'Provider or resource type not found'
@@ -151,11 +208,58 @@ router.post('/:provider/:type', authenticateToken, authorizeRole('user'), (req, 
   }
 });
 
+// Handle GCP resource creation
+async function handleGCPResourceCreation(req, res, type) {
+  try {
+    const { name, instanceType, region, zone } = req.body;
+    
+    if (type === 'instances') {
+      const newInstance = await gcpService.createInstance({
+        name,
+        instanceType: instanceType || 'e2-medium',
+        region: region || process.env.GCP_REGION,
+        zone: zone || process.env.GCP_ZONE
+      });
+      
+      res.status(201).json({
+        message: 'GCP instance created successfully',
+        resource: newInstance
+      });
+    } else if (type === 'storage') {
+      const newBucket = await gcpService.createStorageBucket({
+        name,
+        region: region || process.env.GCP_REGION,
+        storageClass: instanceType || 'STANDARD'
+      });
+      
+      res.status(201).json({
+        message: 'GCP storage bucket created successfully',
+        resource: newBucket
+      });
+    } else {
+      res.status(400).json({
+        error: 'Resource type not supported for GCP yet'
+      });
+    }
+    
+  } catch (error) {
+    console.error('GCP resource creation error:', error);
+    res.status(500).json({
+      error: 'Failed to create GCP resource',
+      details: error.message
+    });
+  }
+}
+
 // Update resource
 router.put('/:provider/:type/:id', authenticateToken, authorizeRole('user'), (req, res) => {
   try {
     const { provider, type, id } = req.params;
     const updates = req.body;
+
+    if (provider === 'gcp') {
+      return handleGCPResourceUpdate(req, res, type, id, updates);
+    }
 
     if (!mockResources[provider] || !mockResources[provider][type]) {
       return res.status(404).json({
@@ -191,10 +295,49 @@ router.put('/:provider/:type/:id', authenticateToken, authorizeRole('user'), (re
   }
 });
 
+// Handle GCP resource updates
+async function handleGCPResourceUpdate(req, res, type, id, updates) {
+  try {
+    if (type === 'instances') {
+      let result;
+      
+      if (updates.status === 'running') {
+        result = await gcpService.startInstance(id, updates.zone);
+      } else if (updates.status === 'stopped') {
+        result = await gcpService.stopInstance(id, updates.zone);
+      } else {
+        return res.status(400).json({
+          error: 'Invalid status update for GCP instance'
+        });
+      }
+      
+      res.json({
+        message: result.message,
+        resource: { id, ...updates, updatedAt: new Date().toISOString() }
+      });
+    } else {
+      res.status(400).json({
+        error: 'Resource type update not supported for GCP yet'
+      });
+    }
+    
+  } catch (error) {
+    console.error('GCP resource update error:', error);
+    res.status(500).json({
+      error: 'Failed to update GCP resource',
+      details: error.message
+    });
+  }
+}
+
 // Delete resource
 router.delete('/:provider/:type/:id', authenticateToken, authorizeRole('user'), (req, res) => {
   try {
     const { provider, type, id } = req.params;
+
+    if (provider === 'gcp') {
+      return handleGCPResourceDeletion(req, res, type, id);
+    }
 
     if (!mockResources[provider] || !mockResources[provider][type]) {
       return res.status(404).json({
@@ -224,5 +367,30 @@ router.delete('/:provider/:type/:id', authenticateToken, authorizeRole('user'), 
     });
   }
 });
+
+// Handle GCP resource deletion
+async function handleGCPResourceDeletion(req, res, type, id) {
+  try {
+    if (type === 'instances') {
+      const result = await gcpService.deleteInstance(id, req.query.zone);
+      
+      res.json({
+        message: result.message,
+        resource: { id, deletedAt: new Date().toISOString() }
+      });
+    } else {
+      res.status(400).json({
+        error: 'Resource type deletion not supported for GCP yet'
+      });
+    }
+    
+  } catch (error) {
+    console.error('GCP resource deletion error:', error);
+    res.status(500).json({
+      error: 'Failed to delete GCP resource',
+      details: error.message
+    });
+  }
+}
 
 module.exports = router;
