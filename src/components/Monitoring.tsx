@@ -155,10 +155,10 @@ export function Monitoring({ activeProvider }: MonitoringProps) {
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-gray-300">Databases</span>
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             </div>
-            <div className="text-2xl font-bold text-white">7/8</div>
-            <div className="text-sm text-gray-400">1 Warning</div>
+            <div className="text-2xl font-bold text-white">2/2</div>
+            <div className="text-sm text-gray-400">All Running</div>
           </div>
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">

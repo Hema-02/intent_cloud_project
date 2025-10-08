@@ -16,7 +16,7 @@ export function ResourceCards({ activeProvider }: ResourceCardsProps) {
       },
       gcp: {
         instances: { count: 18, change: '+8%', service: 'Compute Engine' },
-        databases: { count: 6, change: '+2%', service: 'Cloud SQL' },
+        databases: { count: 2, change: '+2%', service: 'Cloud SQL' },
         storage: { count: '1.8TB', change: '+15%', service: 'Cloud Storage' },
         security: { count: 12, change: '+1%', service: 'IAM Policies' },
       },

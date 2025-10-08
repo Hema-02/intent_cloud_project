@@ -80,10 +80,19 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
           id: 'gcp-sql-001',
           name: 'production-db-gcp',
           engine: 'PostgreSQL',
-          status: 'available',
+          status: 'running',
           region: 'us-central1',
           cost: '$89.12/month',
           created: '2024-01-12'
+        },
+        {
+          id: 'gcp-sql-002',
+          name: 'development-db-gcp',
+          engine: 'MySQL',
+          status: 'running',
+          region: 'us-central1',
+          cost: '$45.60/month',
+          created: '2024-01-10'
         }
       ],
       storage: [
