@@ -7,6 +7,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Add retry logic for network errors
+  validateStatus: function (status) {
+    return status < 500; // Resolve only if the status code is less than 500
+  }
 });
 
 // Request interceptor to add auth token

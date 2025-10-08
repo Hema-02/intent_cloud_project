@@ -31,12 +31,19 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
   const loadResources = async () => {
     setLoading(true);
     try {
-      const data = await resourcesAPI.getAll(activeProvider, selectedResourceType);
-      setResources(data.resources);
+      // Only try API call if backend is available
+      try {
+        const data = await resourcesAPI.getAll(activeProvider, selectedResourceType);
+        setResources(data.resources);
+      } catch (apiError) {
+        console.warn('Backend API not available, using mock data:', apiError);
+        // Fallback to mock data if API fails
+        const mockData = { [selectedResourceType]: getMockResources(activeProvider, selectedResourceType) };
+        setResources(mockData);
+      }
     } catch (error) {
       console.error('Failed to load resources:', error);
-      // Fallback to mock data if API fails
-      const mockData = getMockResources(activeProvider, selectedResourceType);
+      const mockData = { [selectedResourceType]: getMockResources(activeProvider, selectedResourceType) };
       setResources(mockData);
     } finally {
       setLoading(false);
@@ -44,7 +51,79 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
   };
 
   const getMockResources = (provider: string, resourceType: string) => {
-    const mockResources = {
+    // GCP-specific mock resources
+    const gcpMockResources = {
+      instances: [
+        {
+          id: 'gcp-vm-001',
+          name: 'web-server-gcp',
+          type: 'e2-medium',
+          status: 'running',
+          region: 'us-central1',
+          zone: 'us-central1-a',
+          cost: '$23.36/month',
+          created: '2024-01-15'
+        },
+        {
+          id: 'gcp-vm-002',
+          name: 'database-server-gcp',
+          type: 'n1-standard-2',
+          status: 'stopped',
+          region: 'europe-west1',
+          zone: 'europe-west1-b',
+          cost: '$48.54/month',
+          created: '2024-01-10'
+        }
+      ],
+      databases: [
+        {
+          id: 'gcp-sql-001',
+          name: 'production-db-gcp',
+          engine: 'PostgreSQL',
+          status: 'available',
+          region: 'us-central1',
+          cost: '$89.12/month',
+          created: '2024-01-12'
+        }
+      ],
+      storage: [
+        {
+          id: 'gcp-bucket-001',
+          name: 'app-storage-gcp',
+          type: 'Standard',
+          size: '2.1 TB',
+          status: 'active',
+          region: 'us-central1',
+          cost: '$423.67/month',
+          created: '2024-01-15'
+        }
+      ],
+      networking: [
+        {
+          id: 'gcp-vpc-001',
+          name: 'main-vpc-gcp',
+          type: 'VPC Network',
+          cidr: '10.0.0.0/16',
+          status: 'active',
+          region: 'global',
+          cost: '$0.00/month',
+          created: '2024-01-01'
+        }
+      ],
+      security: [
+        {
+          id: 'gcp-fw-001',
+          name: 'web-firewall-gcp',
+          type: 'Firewall Rule',
+          rules: '3 ingress, 1 egress',
+          status: 'active',
+          cost: '$0.00/month',
+          created: '2024-01-05'
+        }
+      ]
+    };
+
+    const awsMockResources = {
       instances: [
         {
           id: 'i-1234567890abcdef0',
@@ -111,7 +190,8 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
       ]
     };
 
-    return mockResources[resourceType as keyof typeof mockResources] || [];
+    const mockData = provider === 'gcp' ? gcpMockResources : awsMockResources;
+    return mockData[resourceType as keyof typeof mockData] || [];
   };
 
   const handleCreateResource = async (resourceData: any) => {
