@@ -175,6 +175,20 @@ export function CreateResourceModal({
           </div>
 
           {activeProvider === 'gcp' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Zone</label>
+              <select
+                value={formData.zone || ''}
+                onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
+                className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Auto-select zone</option>
+                <option value={`${formData.region}-a`}>{formData.region}-a</option>
+                <option value={`${formData.region}-b`}>{formData.region}-b</option>
+                <option value={`${formData.region}-c`}>{formData.region}-c</option>
+              </select>
+            </div>
+          )}
           {activeProvider === 'ibm' && (
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Zone</label>
