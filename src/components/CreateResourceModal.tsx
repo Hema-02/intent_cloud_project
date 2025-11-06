@@ -109,15 +109,15 @@ export function CreateResourceModal({
               required
             >
               <option value="">Select type</option>
-              {activeProvider === 'gcp' ? (
+              {activeProvider === 'ibm' ? (
                 <>
-                  <option value="e2-micro">e2-micro (1 vCPU, 1GB RAM)</option>
-                  <option value="e2-small">e2-small (1 vCPU, 2GB RAM)</option>
-                  <option value="e2-medium">e2-medium (1 vCPU, 4GB RAM)</option>
-                  <option value="e2-standard-2">e2-standard-2 (2 vCPU, 8GB RAM)</option>
-                  <option value="e2-standard-4">e2-standard-4 (4 vCPU, 16GB RAM)</option>
-                  <option value="n1-standard-1">n1-standard-1 (1 vCPU, 3.75GB RAM)</option>
-                  <option value="n1-standard-2">n1-standard-2 (2 vCPU, 7.5GB RAM)</option>
+                  <option value="bx2-2x8">bx2-2x8 (2 vCPU, 8GB RAM)</option>
+                  <option value="bx2-4x16">bx2-4x16 (4 vCPU, 16GB RAM)</option>
+                  <option value="bx2-8x32">bx2-8x32 (8 vCPU, 32GB RAM)</option>
+                  <option value="cx2-2x4">cx2-2x4 (2 vCPU, 4GB RAM)</option>
+                  <option value="cx2-4x8">cx2-4x8 (4 vCPU, 8GB RAM)</option>
+                  <option value="mx2-2x16">mx2-2x16 (2 vCPU, 16GB RAM)</option>
+                  <option value="mx2-4x32">mx2-4x32 (4 vCPU, 32GB RAM)</option>
                 </>
               ) : activeProvider === 'azure' ? (
                 <>
@@ -146,13 +146,14 @@ export function CreateResourceModal({
               onChange={(e) => setFormData({ ...formData, region: e.target.value })}
               className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {activeProvider === 'gcp' ? (
+              {activeProvider === 'ibm' ? (
                 <>
-                  <option value="us-central1">US Central (Iowa)</option>
-                  <option value="us-east1">US East (South Carolina)</option>
-                  <option value="us-west1">US West (Oregon)</option>
-                  <option value="europe-west1">Europe West (Belgium)</option>
-                  <option value="asia-southeast1">Asia Southeast (Singapore)</option>
+                  <option value="us-south">US South (Dallas)</option>
+                  <option value="us-east">US East (Washington DC)</option>
+                  <option value="eu-gb">United Kingdom (London)</option>
+                  <option value="eu-de">Germany (Frankfurt)</option>
+                  <option value="jp-tok">Japan (Tokyo)</option>
+                  <option value="au-syd">Australia (Sydney)</option>
                 </>
               ) : activeProvider === 'azure' ? (
                 <>
@@ -174,19 +175,18 @@ export function CreateResourceModal({
           </div>
 
           {activeProvider === 'gcp' && (
+          {activeProvider === 'ibm' && (
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Zone
-              </label>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Zone</label>
               <select
                 value={formData.zone || ''}
                 onChange={(e) => setFormData({ ...formData, zone: e.target.value })}
                 className="w-full bg-gray-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Auto-select zone</option>
-                <option value={`${formData.region}-a`}>{formData.region}-a</option>
-                <option value={`${formData.region}-b`}>{formData.region}-b</option>
-                <option value={`${formData.region}-c`}>{formData.region}-c</option>
+                <option value={`${formData.region}-1`}>{formData.region}-1</option>
+                <option value={`${formData.region}-2`}>{formData.region}-2</option>
+                <option value={`${formData.region}-3`}>{formData.region}-3</option>
               </select>
             </div>
           )}

@@ -7,9 +7,9 @@ interface CloudProviderTabsProps {
 
 export function CloudProviderTabs({ activeProvider, setActiveProvider }: CloudProviderTabsProps) {
   const providers = [
-    { id: 'gcp', name: 'Google Cloud Platform', color: 'bg-blue-500', shortName: 'GCP' },
+    { id: 'ibm', name: 'IBM Cloud', color: 'bg-blue-600', shortName: 'IBM Cloud' },
     { id: 'aws', name: 'Amazon Web Services', color: 'bg-orange-500', shortName: 'AWS' },
-    { id: 'azure', name: 'Microsoft Azure', color: 'bg-blue-600', shortName: 'Azure' },
+    { id: 'azure', name: 'Microsoft Azure', color: 'bg-blue-500', shortName: 'Azure' },
   ];
 
   return (

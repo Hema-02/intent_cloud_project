@@ -18,7 +18,7 @@ export type ViewType = 'dashboard' | 'resources' | 'monitoring' | 'security' | '
 function App() {
   const [activeView, setActiveView] = useState<ViewType>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeProvider, setActiveProvider] = useState<'aws' | 'azure' | 'gcp'>('gcp');
+  const [activeProvider, setActiveProvider] = useState<'aws' | 'azure' | 'ibm'>('ibm');
 
   const getDemoUserRole = (): string => {
     // Demo users get 'user' role by default to access most features

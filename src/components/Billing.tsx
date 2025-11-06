@@ -22,16 +22,16 @@ export function Billing({ activeProvider }: BillingProps) {
           { name: 'Other Services', cost: '$376.08', percentage: 13 },
         ]
       },
-      gcp: {
-        currentCost: '$1,923.45',
-        lastMonth: '$2,156.78',
-        trend: '-10.8%',
+      ibm: {
+        currentCost: '$2,156.78',
+        lastMonth: '$2,034.56',
+        trend: '+6.0%',
         services: [
-          { name: 'Compute Engine', cost: '$856.34', percentage: 45 },
-          { name: 'Cloud Storage', cost: '$423.67', percentage: 22 },
-          { name: 'Cloud SQL', cost: '$345.23', percentage: 18 },
-          { name: 'Cloud CDN', cost: '$156.78', percentage: 8 },
-          { name: 'Other Services', cost: '$141.43', percentage: 7 },
+          { name: 'Virtual Servers', cost: '$971.05', percentage: 45 },
+          { name: 'Object Storage', cost: '$474.49', percentage: 22 },
+          { name: 'Db2 Databases', cost: '$388.22', percentage: 18 },
+          { name: 'Content Delivery', cost: '$172.54', percentage: 8 },
+          { name: 'Other Services', cost: '$150.48', percentage: 7 },
         ]
       },
       azure: {

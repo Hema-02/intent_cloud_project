@@ -51,79 +51,79 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
   };
 
   const getMockResources = (provider: string, resourceType: string) => {
-    // GCP-specific mock resources
-    const gcpMockResources = {
+    // IBM Cloud-specific mock resources
+    const ibmMockResources = {
       instances: [
         {
-          id: 'gcp-vm-001',
-          name: 'web-server-gcp',
-          type: 'e2-medium',
+          id: 'ibm-vsi-001',
+          name: 'web-server-ibm',
+          type: 'bx2-2x8',
           status: 'running',
-          region: 'us-central1',
-          zone: 'us-central1-a',
-          cost: '$23.36/month',
+          region: 'us-south',
+          zone: 'us-south-1',
+          cost: '$45.60/month',
           created: '2024-01-15'
         },
         {
-          id: 'gcp-vm-002',
-          name: 'database-server-gcp',
-          type: 'n1-standard-2',
+          id: 'ibm-vsi-002',
+          name: 'database-server-ibm',
+          type: 'cx2-4x8',
           status: 'stopped',
-          region: 'europe-west1',
-          zone: 'europe-west1-b',
-          cost: '$48.54/month',
+          region: 'eu-gb',
+          zone: 'eu-gb-1',
+          cost: '$91.20/month',
           created: '2024-01-10'
         }
       ],
       databases: [
         {
-          id: 'gcp-sql-001',
-          name: 'production-db-gcp',
+          id: 'ibm-db-001',
+          name: 'production-db-ibm',
           engine: 'PostgreSQL',
           status: 'running',
-          region: 'us-central1',
-          cost: '$89.12/month',
+          region: 'us-south',
+          cost: '$120.00/month',
           created: '2024-01-12'
         },
         {
-          id: 'gcp-sql-002',
-          name: 'development-db-gcp',
+          id: 'ibm-db-002',
+          name: 'development-db-ibm',
           engine: 'MySQL',
           status: 'running',
-          region: 'us-central1',
-          cost: '$45.60/month',
+          region: 'us-south',
+          cost: '$67.80/month',
           created: '2024-01-10'
         }
       ],
       storage: [
         {
-          id: 'gcp-bucket-001',
-          name: 'app-storage-gcp',
+          id: 'ibm-cos-001',
+          name: 'app-storage-ibm',
           type: 'Standard',
           size: '2.1 TB',
           status: 'active',
-          region: 'us-central1',
-          cost: '$423.67/month',
+          region: 'us-south',
+          cost: '$48.30/month',
           created: '2024-01-15'
         }
       ],
       networking: [
         {
-          id: 'gcp-vpc-001',
-          name: 'main-vpc-gcp',
+          id: 'ibm-vpc-001',
+          name: 'main-vpc-ibm',
           type: 'VPC Network',
           cidr: '10.0.0.0/16',
           status: 'active',
-          region: 'global',
+          region: 'us-south',
           cost: '$0.00/month',
           created: '2024-01-01'
         }
       ],
       security: [
         {
-          id: 'gcp-fw-001',
-          name: 'web-firewall-gcp',
-          type: 'Firewall Rule',
+          id: 'ibm-sg-001',
+          name: 'web-security-group-ibm',
+          type: 'Security Group',
           rules: '3 ingress, 1 egress',
           status: 'active',
           cost: '$0.00/month',
@@ -199,7 +199,7 @@ export function ResourceManager({ activeProvider }: ResourceManagerProps) {
       ]
     };
 
-    const mockData = provider === 'gcp' ? gcpMockResources : awsMockResources;
+    const mockData = provider === 'ibm' ? ibmMockResources : awsMockResources;
     return mockData[resourceType as keyof typeof mockData] || [];
   };
 

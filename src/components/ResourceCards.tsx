@@ -14,11 +14,11 @@ export function ResourceCards({ activeProvider }: ResourceCardsProps) {
         storage: { count: '2.4TB', change: '+18%', service: 'S3 Storage' },
         security: { count: 15, change: '0%', service: 'IAM Policies' },
       },
-      gcp: {
-        instances: { count: 18, change: '+8%', service: 'Compute Engine' },
-        databases: { count: 2, change: '+2%', service: 'Cloud SQL' },
-        storage: { count: '1.8TB', change: '+15%', service: 'Cloud Storage' },
-        security: { count: 12, change: '+1%', service: 'IAM Policies' },
+      ibm: {
+        instances: { count: 16, change: '+6%', service: 'Virtual Server Instances' },
+        databases: { count: 2, change: '+2%', service: 'IBM Db2' },
+        storage: { count: '2.1TB', change: '+12%', service: 'Cloud Object Storage' },
+        security: { count: 14, change: '+1%', service: 'Identity & Access' },
       },
       azure: {
         instances: { count: 21, change: '+10%', service: 'Virtual Machines' },

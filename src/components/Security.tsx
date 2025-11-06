@@ -9,23 +9,23 @@ export function Security({ activeProvider }: SecurityProps) {
   const [selectedTab, setSelectedTab] = useState('overview');
 
   const securityMetrics = [
-    { label: 'Security Groups', value: '28', status: 'good', icon: Shield },
-    { label: 'IAM Policies', value: '156', status: 'warning', icon: Lock },
-    { label: 'Access Keys', value: '12', status: 'good', icon: Key },
+    { label: 'Security Groups', value: '24', status: 'good', icon: Shield },
+    { label: 'IAM Policies', value: '142', status: 'good', icon: Lock },
+    { label: 'Access Keys', value: '8', status: 'good', icon: Key },
     { label: 'Active Users', value: '45', status: 'good', icon: Users },
   ];
 
   const vulnerabilities = [
-    { severity: 'high', title: 'Unrestricted SSH Access', resource: 'sg-1234567890abc', description: 'Security group allows SSH (port 22) from 0.0.0.0/0' },
-    { severity: 'medium', title: 'Unused Access Key', resource: 'AKIA...XYZ123', description: 'Access key has not been used in 90+ days' },
-    { severity: 'low', title: 'Weak Password Policy', resource: 'IAM Policy', description: 'Password policy does not require special characters' },
+    { severity: 'medium', title: 'Open SSH Port', resource: 'ibm-sg-001', description: 'Security group allows SSH access from wide IP range' },
+    { severity: 'low', title: 'Unused Service ID', resource: 'ServiceId-abc123', description: 'Service ID has not been used in 60+ days' },
+    { severity: 'low', title: 'MFA Not Enabled', resource: 'IAM User', description: 'Multi-factor authentication not enabled for some users' },
   ];
 
   const complianceChecks = [
     { name: 'SOC 2', status: 'compliant', score: 98 },
-    { name: 'ISO 27001', status: 'compliant', score: 95 },
-    { name: 'GDPR', status: 'warning', score: 87 },
-    { name: 'HIPAA', status: 'non-compliant', score: 72 },
+    { name: 'ISO 27001', status: 'compliant', score: 92 },
+    { name: 'GDPR', status: 'compliant', score: 89 },
+    { name: 'HIPAA', status: 'warning', score: 78 },
   ];
 
   const getStatusColor = (status: string) => {
