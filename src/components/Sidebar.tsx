@@ -7,7 +7,8 @@ import {
   Settings,
   BarChart3,
   Shield,
-  DollarSign
+  DollarSign,
+  Bell
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ export function Sidebar({ activeView, setActiveView, userRole }: SidebarProps) {
     { id: 'monitoring', label: 'Monitoring', icon: BarChart3, requiredRole: 'guest' },
     { id: 'security', label: 'Security', icon: Shield, requiredRole: 'admin' },
     { id: 'billing', label: 'Billing', icon: DollarSign, requiredRole: 'guest' },
+    { id: 'notifications', label: 'Notifications', icon: Bell, requiredRole: 'guest' },
     { id: 'settings', label: 'Settings', icon: Settings, requiredRole: 'guest' },
   ];
 

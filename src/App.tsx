@@ -76,6 +76,8 @@ function App() {
             user={user}
             onSignOut={signOut}
             onSignIn={showAuthModal}
+            onNotificationsClick={() => setActiveView('notifications')}
+            unreadCount={3}
           />
           
           <div className="flex">
