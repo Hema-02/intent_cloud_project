@@ -393,4 +393,29 @@ async function handleGCPResourceDeletion(req, res, type, id) {
   }
 }
 
+// Handle IBM Cloud resource deletion
+async function handleIBMResourceDeletion(req, res, type, id) {
+  try {
+    if (type === 'instances') {
+      const result = await ibmCloudService.deleteInstance(id);
+      
+      res.json({
+        message: result.message,
+        resource: { id, deletedAt: new Date().toISOString() }
+      });
+    } else {
+      res.status(400).json({
+        error: 'Resource type deletion not supported for IBM Cloud yet'
+      });
+    }
+    
+  } catch (error) {
+    console.error('IBM Cloud resource deletion error:', error);
+    res.status(500).json({
+      error: 'Failed to delete IBM Cloud resource',
+      details: error.message
+    });
+  }
+}
+
 module.exports = router;

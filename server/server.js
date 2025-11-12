@@ -82,6 +82,25 @@ app.get('/health/gcp', async (req, res) => {
   }
 });
 
+// IBM Cloud health check endpoint
+app.get('/health/ibm', async (req, res) => {
+  try {
+    const ibmHealth = await ibmCloudService.healthCheck();
+    res.json({
+      service: 'IBM Cloud',
+      ...ibmHealth,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      service: 'IBM Cloud',
+      status: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/resources', resourceRoutes);
