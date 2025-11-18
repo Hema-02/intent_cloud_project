@@ -86,20 +86,6 @@ export const resourcesAPI = {
     const response = await api.put(`/resources/${provider}/${type}/${id}`, data);
     return response.data;
   },
-export const healthAPI = {
-  check: async () => {
-    const response = await fetch(`${API_BASE_URL}/health`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    });
-    
-    if (!response.ok) {
-      throw new Error('Backend server not available');
-    }
-    
-    return response.json();
-  },
-};
 
   delete: async (provider: string, type: string, id: string) => {
     const response = await api.delete(`/resources/${provider}/${type}/${id}`);
