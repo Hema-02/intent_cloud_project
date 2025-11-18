@@ -115,6 +115,9 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
     setIsAuthenticating(true);
     
     try {
+      // Check backend connectivity first
+      await healthAPI.check();
+      
       const response = await authAPI.demoLogin(role);
       
       // Store token and user data
@@ -126,6 +129,12 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
       
     } catch (error: any) {
       console.error('Demo login error:', error);
+      
+      // Show user-friendly error message for network issues
+      if (error.message === 'Backend server not available' || error.message.includes('Network Error') || error.message.includes('fetch')) {
+        alert('Backend server is not running. Continuing with offline demo mode.');
+      }
+      
       // Fallback to local demo user
       const demoUser = {
         id: 'demo-user',
